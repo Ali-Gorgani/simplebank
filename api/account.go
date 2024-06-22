@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
 	db "github.com/Ali-Gorgani/simplebank/db/sqlc"
+	"github.com/gin-gonic/gin"
 )
 
 type createAccountRequest struct {
@@ -16,6 +16,7 @@ type createAccountRequest struct {
 // createAccount creates new account
 func (server *Server) createAccount(ctx *gin.Context) {
 	var req createAccountRequest
+	
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -84,31 +85,32 @@ func (server *Server) listAccount(ctx *gin.Context) {
 }
 
 type updateAccountRequest struct {
-	ID      int64 `json:"id" binding:"required,min=1"`
+	ID 		int64 `json:"id" binding:"required,min=1"`
 	Balance int64 `json:"balance" binding:"required"`
 }
 
+// updateAccount updates an account by ID
 func (server *Server) updateAccount(ctx *gin.Context) {
-	var req updateAccountRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
+    var req updateAccountRequest
+    if err := ctx.ShouldBindJSON(&req); err != nil {
+        ctx.JSON(http.StatusBadRequest, errorResponse(err))
+        return
+    }
 
-	arg := db.UpdateAccountParams{
-		ID:      req.ID,
-		Balance: req.Balance,
-	}
-	account, err := server.store.UpdateAccount(ctx, arg)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, errorResponse(err))
-			return
-		}
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-	ctx.JSON(http.StatusOK, account)
+    arg := db.UpdateAccountParams{
+        ID:      req.ID,
+        Balance: req.Balance,
+    }
+    account, err := server.store.UpdateAccount(ctx, arg)
+    if err != nil {
+        if err == sql.ErrNoRows {
+            ctx.JSON(http.StatusNotFound, errorResponse(err))
+            return
+        }
+        ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+        return
+    }
+    ctx.JSON(http.StatusOK, account)
 }
 
 type deleteAccountRequest struct {
