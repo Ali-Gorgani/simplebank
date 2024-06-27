@@ -2,8 +2,6 @@ module github.com/Ali-Gorgani/simplebank
 
 go 1.22
 
-toolchain go1.22.4
-
 require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/golang/mock v1.6.0
@@ -20,12 +18,8 @@ require (
 require (
 	github.com/aead/chacha20 v0.0.0-20180709150244-8b13a72661da // indirect
 	github.com/aead/poly1305 v0.0.0-20180717145839-3fee0db0b635 // indirect
-	github.com/jackc/pgpassfile v1.0.0 // indirect
-	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
-	github.com/jackc/pgx/v5 v5.3.1 // indirect
-	github.com/jackc/puddle/v2 v2.2.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	golang.org/x/sync v0.6.0 // indirect
+	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
 
 require (
@@ -61,7 +55,6 @@ require (
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	github.com/techschool/simplebank v0.0.0-20240330095002-931b0d981595
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
