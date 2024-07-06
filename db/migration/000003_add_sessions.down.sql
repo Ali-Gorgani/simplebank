@@ -1,0 +1,4 @@
+ALTER TABLE IF EXISTS "sessions"
+DROP CONSTRAINT IF EXISTS "sessions_pkey";
+
+DROP TABLE IF EXISTS "sessions";
