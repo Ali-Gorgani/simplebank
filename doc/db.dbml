@@ -63,4 +63,3 @@ Table sessions {
   expires_at timestamptz [not null]
   created_at timestamptz [not null, default: 'now()']
 }
-
