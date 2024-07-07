@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net"
+	"runtime"
 
 	"github.com/Ali-Gorgani/simplebank/api"
 	db "github.com/Ali-Gorgani/simplebank/db/sqlc"
@@ -39,6 +40,26 @@ func runGRPCServer(config util.Config, store db.Store) {
 	grpcServer := grpc.NewServer()
 	pb.RegisterSimpleBankServer(grpcServer, server)
 	reflection.Register(grpcServer)
+
+	listener, err := net.Listen("tcp", config.GRPCServerAddress)
+	if err != nil {
+		log.Fatal("cannot create listener:", err)
+	}
+
+	log.Printf("start gRPC server at %s", listener.Addr())
+	err = grpcServer.Serve(listener)
+	if err != nil {
+		log.Fatal("cannot start grpc server:", err)
+	}
+}
+
+func runGatewayServer(config util.Config, store db.Store) {
+	server, err := gapi.NewServer(config, store)
+	if err != nil {
+		log.Fatal("cannot create server:", err)
+	}
+
+	runtime.NewServerMux()
 
 	listener, err := net.Listen("tcp", config.GRPCServerAddress)
 	if err != nil {
