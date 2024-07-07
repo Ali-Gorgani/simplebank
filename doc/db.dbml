@@ -5,7 +5,6 @@ Project simple_bank {
   '''
 }
 
-
 Table users as U {
   username varchar [pk]
   hashed_password varchar [not null]
@@ -64,4 +63,3 @@ Table sessions {
   expires_at timestamptz [not null]
   created_at timestamptz [not null, default: 'now()']
 }
-
