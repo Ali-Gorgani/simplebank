@@ -9,6 +9,7 @@ import (
 // Config holds the application wide configurations.
 // The values are read by viper from the config file or environment variables.
 type Config struct {
+	Environment          string        `mapstructure:"ENVIRONMENT"`
 	DBDriver             string        `mapstructure:"DB_DRIVER"`
 	DBSource             string        `mapstructure:"DB_SOURCE"`
 	MigartionURL         string        `mapstructure:"MIGRATION_URL"`
