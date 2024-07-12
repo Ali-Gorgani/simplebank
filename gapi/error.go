@@ -24,3 +24,11 @@ func invalidArgumentError(violations []*errdetails.BadRequest_FieldViolation) er
 
 	return statusDetails.Err()
 }
+
+func unauthenticatedError(err error) error {
+	return status.Errorf(codes.Unauthenticated, "unauthorized: %s", err)
+}
+
+func permissionError(err string) error {
+	return status.Errorf(codes.PermissionDenied, "cannot update other user's info: %s", err)
+}
