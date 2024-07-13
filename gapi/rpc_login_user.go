@@ -67,6 +67,8 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 		RefreshTokenExpiresAt: timestamppb.New(refreshPayload.ExpiredAt),
 	}
 
+	// time.Sleep(10 * time.Second)
+
 	return rsp, nil
 }
 
