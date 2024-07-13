@@ -10,8 +10,19 @@ Table users as U {
   hashed_password varchar [not null]
   full_name varchar [not null]
   email varchar [unique, not null]
+  is_email_verified boolean [not null, default: false]
   password_changed_at timestamptz [not null, default: '0001-01-01 00:00:00Z']
-  created_at timestamptz [not null, default: 'now()']
+  created_at timestamptz [not null, default: `now()`]
+}
+
+Table verify_emails {
+  id bigserial [pk]
+  username varchar [ref: > U.username, not null]
+  email varchar [not null]
+  secret_code varchar [not null]
+  is_used boolean [not null, default: false]
+  created_at timestamptz [not null, default: `now()`]
+  expires_at timestamptz [not null, default: `now() +  interval '15 minutes'`]
 }
 
 Table accounts as A {
@@ -19,7 +30,7 @@ Table accounts as A {
   owner varchar [ref: > U.username,not null]
   balance bigint [not null]
   currency varchar [not null]
-  created_at timestamptz [not null, default: 'now()']
+  created_at timestamptz [not null, default: `now()`]
 
   indexes {
     owner
@@ -32,7 +43,7 @@ Table entries {
   id bigserial [pk]
   account_id bigint [ref: > A.id, not null]
   amount bigint [not null, note: 'can be negative pr positive']
-  created_at timestamptz [not null, default: 'now()']
+  created_at timestamptz [not null, default: `now()`]
 
   indexes {
     account_id
@@ -44,7 +55,7 @@ Table transfers {
   from_account_id bigint [ref: > A.id, not null]
   to_account_id bigint [ref: > A.id, not null]
   amount bigint [not null, note: 'must be positive']
-  created_at timestamptz [not null, default: 'now()']
+  created_at timestamptz [not null, default: `now()`]
 
   indexes {
     from_account_id
@@ -61,5 +72,5 @@ Table sessions {
   client_ip varchar [not null]
   is_blocked boolean [not null, default: false]
   expires_at timestamptz [not null]
-  created_at timestamptz [not null, default: 'now()']
+  created_at timestamptz [not null, default: `now()`]
 }
