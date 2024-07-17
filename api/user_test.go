@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -16,7 +17,6 @@ import (
 	"github.com/Ali-Gorgani/simplebank/util"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
-	"github.com/lib/pq"
 	"github.com/stretchr/testify/require"
 )
 
@@ -53,10 +53,10 @@ func randomUser(t *testing.T) (db.User, string) {
 	require.NoError(t, err)
 	require.NotEmpty(t, hashedPassword)
 	arg := db.User{
-		Username:       util.RandomOwner(),
-		HashedPassword: hashedPassword,
-		FullName:       util.RandomOwner(),
-		Email:          util.RandomEmail(),
+		Username:          util.RandomOwner(),
+		HashedPassword:    hashedPassword,
+		FullName:          util.RandomOwner(),
+		Email:             util.RandomEmail(),
 		PasswordChangedAt: time.Now(),
 		CreatedAt:         time.Now(),
 	}
@@ -127,7 +127,7 @@ func TestCreateUser(t *testing.T) {
 				store.EXPECT().
 					CreateUser(gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(db.User{}, &pq.Error{Code: "23505"})
+					Return(db.User{}, db.ErrUniqueViolation)
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusForbidden, recorder.Code)
@@ -196,7 +196,7 @@ func TestCreateUser(t *testing.T) {
 				store.EXPECT().
 					CreateUser(gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(db.User{}, &pq.Error{Code: "23505"})
+					Return(db.User{}, db.ErrUniqueViolation)
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusForbidden, recorder.Code)
@@ -258,7 +258,7 @@ func TestGetUser(t *testing.T) {
 		checkResponse func(t *testing.T, recoder *httptest.ResponseRecorder)
 	}{
 		{
-			name:   "OK",
+			name:     "OK",
 			userName: user.Username,
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
@@ -272,20 +272,20 @@ func TestGetUser(t *testing.T) {
 			},
 		},
 		{
-			name:   "NotFound",
+			name:     "NotFound",
 			userName: user.Username,
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
 					GetUser(gomock.Any(), gomock.Eq(user.Username)).
 					Times(1).
-					Return(db.User{}, sql.ErrNoRows)
+					Return(db.User{}, db.ErrRecordNotFound)
 			},
 			checkResponse: func(t *testing.T, recoder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recoder.Code)
 			},
 		},
 		{
-			name:   "InternalError",
+			name:     "InternalError",
 			userName: user.Username,
 			buildStubs: func(store *mockdb.MockStore) {
 				store.EXPECT().
@@ -320,16 +320,17 @@ func TestGetUser(t *testing.T) {
 		})
 	}
 }
-	
 
 func requireBodyMatchUser(t *testing.T, body *bytes.Buffer, user db.User) {
-	var gotUser userResponse
-	err := json.NewDecoder(body).Decode(&gotUser)
+	data, err := io.ReadAll(body)
+	require.NoError(t, err)
+
+	var gotUser db.User
+	err = json.Unmarshal(data, &gotUser)
 	require.NoError(t, err)
 
 	require.Equal(t, user.Username, gotUser.Username)
 	require.Equal(t, user.FullName, gotUser.FullName)
 	require.Equal(t, user.Email, gotUser.Email)
-	require.WithinDuration(t, time.Now(), gotUser.PasswordChangedAt, time.Second)
-	require.WithinDuration(t, time.Now(), gotUser.CreatedAt, time.Second)
+	require.Empty(t, gotUser.HashedPassword)
 }

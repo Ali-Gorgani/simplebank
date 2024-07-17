@@ -12,12 +12,12 @@ import (
 	"time"
 
 	mockdb "github.com/Ali-Gorgani/simplebank/db/mock"
+	db "github.com/Ali-Gorgani/simplebank/db/sqlc"
 	"github.com/Ali-Gorgani/simplebank/token"
 	"github.com/Ali-Gorgani/simplebank/util"
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
-	db "github.com/Ali-Gorgani/simplebank/db/sqlc"
 )
 
 func TestGetAccountAPI(t *testing.T) {
@@ -89,7 +89,7 @@ func TestGetAccountAPI(t *testing.T) {
 				store.EXPECT().
 					GetAccount(gomock.Any(), gomock.Eq(account.ID)).
 					Times(1).
-					Return(db.Account{}, sql.ErrNoRows)
+					Return(db.Account{}, db.ErrRecordNotFound)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusNotFound, recorder.Code)

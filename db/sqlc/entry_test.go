@@ -2,10 +2,10 @@ package db
 
 import (
 	"context"
-	"database/sql"
-	"github.com/Ali-Gorgani/simplebank/util"
 	"testing"
 	"time"
+
+	"github.com/Ali-Gorgani/simplebank/util"
 
 	"github.com/stretchr/testify/require"
 )
@@ -16,7 +16,7 @@ func createRandomEntry(t *testing.T) Entry {
 		AccountID: account.ID,
 		Amount:    util.RandomMoney(),
 	}
-	entry, err := testQueries.CreateEntry(context.Background(), arg)
+	entry, err := testStore.CreateEntry(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, entry)
 
@@ -35,7 +35,7 @@ func TestCreateEntry(t *testing.T) {
 
 func TestGetEntry(t *testing.T) {
 	entry1 := createRandomEntry(t)
-	entry2, err := testQueries.GetEntry(context.Background(), entry1.ID)
+	entry2, err := testStore.GetEntry(context.Background(), entry1.ID)
 	require.NoError(t, err)
 	require.NotEmpty(t, entry2)
 	require.Equal(t, entry1.Amount, entry2.Amount)
@@ -54,7 +54,7 @@ func TestListEntries(t *testing.T) {
 		Offset: 5,
 	}
 
-	entries, err := testQueries.ListEntries(context.Background(), arg)
+	entries, err := testStore.ListEntries(context.Background(), arg)
 	require.NoError(t, err)
 	require.Len(t, entries, 5)
 
@@ -70,7 +70,7 @@ func TestUpdateEntry(t *testing.T) {
 		Amount: util.RandomMoney(),
 	}
 
-	entry2, err := testQueries.UpdateEntry(context.Background(), arg)
+	entry2, err := testStore.UpdateEntry(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, entry2)
 
@@ -81,11 +81,11 @@ func TestUpdateEntry(t *testing.T) {
 
 func TestDeleteEntry(t *testing.T) {
 	entry1 := createRandomEntry(t)
-	err := testQueries.DeleteEntry(context.Background(), entry1.ID)
+	err := testStore.DeleteEntry(context.Background(), entry1.ID)
 	require.NoError(t, err)
 
-	entry2, err := testQueries.GetEntry(context.Background(), entry1.ID)
+	entry2, err := testStore.GetEntry(context.Background(), entry1.ID)
 	require.Error(t, err)
-	require.EqualError(t, err, sql.ErrNoRows.Error())
+	require.EqualError(t, err, ErrRecordNotFound.Error())
 	require.Empty(t, entry2)
 }
