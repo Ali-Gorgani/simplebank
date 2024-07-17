@@ -29,6 +29,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 
 	_ "github.com/lib/pq"
+	_ "github.com/jackc/pgx/v5"
 )
 
 func main() {
