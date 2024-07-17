@@ -2,11 +2,11 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"testing"
 	"time"
 
 	"github.com/Ali-Gorgani/simplebank/util"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/stretchr/testify/require"
 )
 
@@ -20,7 +20,7 @@ func CreateRandomUser(t *testing.T) User {
 		FullName:       util.RandomOwner(),
 		Email:          util.RandomEmail(),
 	}
-	user, err := testQueries.CreateUser(context.Background(), arg)
+	user, err := testStore.CreateUser(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, user)
 
@@ -40,7 +40,7 @@ func TestCreateUser(t *testing.T) {
 
 func TestGetUser(t *testing.T) {
 	user1 := CreateRandomUser(t)
-	user2, err := testQueries.GetUser(context.Background(), user1.Username)
+	user2, err := testStore.GetUser(context.Background(), user1.Username)
 	require.NoError(t, err)
 	require.NotEmpty(t, user2)
 
@@ -59,13 +59,13 @@ func TestUpdateUserOnlyFullName(t *testing.T) {
 	newFullName := util.RandomOwner()
 	arg := UpdateUserParams{
 		Username: oldUser.Username,
-		FullName: sql.NullString{
+		FullName: pgtype.Text{
 			String: newFullName,
 			Valid:  true,
 		},
 	}
 
-	updatedUser, err := testQueries.UpdateUser(context.Background(), arg)
+	updatedUser, err := testStore.UpdateUser(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, updatedUser)
 	require.NotEqual(t, oldUser.FullName, updatedUser.FullName)
@@ -81,13 +81,13 @@ func TestUpdateUserOnlyEmail(t *testing.T) {
 	newEmail := util.RandomEmail()
 	arg := UpdateUserParams{
 		Username: oldUser.Username,
-		Email: sql.NullString{
+		Email: pgtype.Text{
 			String: newEmail,
 			Valid:  true,
 		},
 	}
 
-	updatedUser, err := testQueries.UpdateUser(context.Background(), arg)
+	updatedUser, err := testStore.UpdateUser(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, updatedUser)
 	require.NotEqual(t, oldUser.Email, updatedUser.Email)
@@ -106,13 +106,13 @@ func TestUpdateUserOnlyPassword(t *testing.T) {
 
 	arg := UpdateUserParams{
 		Username: oldUser.Username,
-		HashedPassword: sql.NullString{
+		HashedPassword: pgtype.Text{
 			String: newHashedPassword,
 			Valid:  true,
 		},
 	}
 
-	updatedUser, err := testQueries.UpdateUser(context.Background(), arg)
+	updatedUser, err := testStore.UpdateUser(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, updatedUser)
 	require.NotEqual(t, oldUser.HashedPassword, updatedUser.HashedPassword)
@@ -120,7 +120,7 @@ func TestUpdateUserOnlyPassword(t *testing.T) {
 	require.Equal(t, oldUser.Username, updatedUser.Username)
 	require.Equal(t, oldUser.FullName, updatedUser.FullName)
 	require.Equal(t, oldUser.Email, updatedUser.Email)
-} 
+}
 
 func TestUpdateUserAllFields(t *testing.T) {
 	oldUser := CreateRandomUser(t)
@@ -134,21 +134,21 @@ func TestUpdateUserAllFields(t *testing.T) {
 
 	arg := UpdateUserParams{
 		Username: oldUser.Username,
-		HashedPassword: sql.NullString{
+		HashedPassword: pgtype.Text{
 			String: newHashedPassword,
 			Valid:  true,
 		},
-		FullName: sql.NullString{
+		FullName: pgtype.Text{
 			String: newFullName,
 			Valid:  true,
 		},
-		Email: sql.NullString{
+		Email: pgtype.Text{
 			String: newEmail,
 			Valid:  true,
 		},
-	} 
+	}
 
-	updatedUser, err := testQueries.UpdateUser(context.Background(), arg)
+	updatedUser, err := testStore.UpdateUser(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, updatedUser)
 	require.NotEqual(t, oldUser.HashedPassword, updatedUser.HashedPassword)
@@ -158,5 +158,3 @@ func TestUpdateUserAllFields(t *testing.T) {
 	require.NotEqual(t, oldUser.Email, updatedUser.Email)
 	require.Equal(t, newEmail, updatedUser.Email)
 }
-
-
