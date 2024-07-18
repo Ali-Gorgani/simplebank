@@ -2,7 +2,6 @@ package gapi
 
 import (
 	"context"
-	"github.com/rs/zerolog/log"
 	"time"
 
 	db "github.com/Ali-Gorgani/simplebank/db/sqlc"
