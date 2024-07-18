@@ -28,17 +28,29 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 		return nil, status.Errorf(codes.Internal, "failed to find user: %s", err)
 	}
 
+	// if !user.IsEmailVerified {
+	// 	return nil, status.Errorf(codes.Unauthenticated, "email not verified")
+	// }
+
 	err = util.CheckPassword(req.GetPassword(), user.HashedPassword)
 	if err != nil {
 		return nil, status.Errorf(codes.Unauthenticated, "incorrect password: %s", err)
 	}
 
-	accessToken, accessPayload, err := server.tokenMaker.CreateToken(user.Username, server.config.AccessTokenDuration)
+	accessToken, accessPayload, err := server.tokenMaker.CreateToken(
+		user.Username,
+		user.Role,
+		server.config.AccessTokenDuration,
+	)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to create access token: %s", err)
 	}
 
-	refreshedToken, refreshPayload, err := server.tokenMaker.CreateToken(user.Username, server.config.RefreshTokenDuration)
+	refreshedToken, refreshPayload, err := server.tokenMaker.CreateToken(
+		user.Username,
+		user.Role,
+		server.config.RefreshTokenDuration,
+	)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to create refresh token: %s", err)
 	}
