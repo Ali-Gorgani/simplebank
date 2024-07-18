@@ -62,6 +62,7 @@ func randomUser(t *testing.T) (db.User, string) {
 	require.NotEmpty(t, hashedPassword)
 	arg := db.User{
 		Username:          util.RandomOwner(),
+		Role:              util.DepositorRole,
 		HashedPassword:    hashedPassword,
 		FullName:          util.RandomOwner(),
 		Email:             util.RandomEmail(),
